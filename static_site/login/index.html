@@ -61,8 +61,15 @@
         });
         if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
+        // Persist simple session locally for demo purposes
+        try {
+          localStorage.setItem('user', JSON.stringify({
+            email: document.getElementById('email').value,
+            token: data.token
+          }));
+        } catch {}
         statusEl.textContent = 'Success! Redirecting…';
-        setTimeout(() => { window.location.href = '/'; }, 800);
+        setTimeout(() => { window.location.href = '/dashboard/'; }, 800);
       } catch (e) {
         statusEl.textContent = 'Login failed: ' + e.message;
       }

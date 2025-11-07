@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CineDesk Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1.5.10/css/pico.min.css">
+  <style>
+    main { max-width: 760px; margin: 2rem auto; }
+    .muted { color: #6b7280; }
+  </style>
+  <script>
+    function getUser() {
+      try { return JSON.parse(localStorage.getItem('user')) || null; } catch { return null; }
+    }
+    function logout() {
+      localStorage.removeItem('user');
+      window.location.href = '/';
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = getUser();
+      const authGate = document.getElementById('auth-gate');
+      const dash = document.getElementById('dashboard');
+      const who = document.getElementById('who');
+      if (!user) {
+        authGate.style.display = 'block';
+        dash.style.display = 'none';
+      } else {
+        who.textContent = user.email || 'User';
+        authGate.style.display = 'none';
+        dash.style.display = 'block';
+      }
+    });
+  </script>
+  </head>
+<body>
+  <nav class="container-fluid">
+    <ul>
+      <li><strong>CineDesk</strong></li>
+    </ul>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/login/">Login</a></li>
+      <li><a href="/register/">Register</a></li>
+      <li><button class="secondary" onclick="logout()">Logout</button></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <section id="auth-gate" style="display:none">
+      <h2>Please login to continue</h2>
+      <p class="muted">Your session is missing or expired.</p>
+      <p>
+        <a href="/login/" role="button">Go to Login</a>
+      </p>
+    </section>
+
+    <section id="dashboard" style="display:none">
+      <h2>Welcome, <span id="who"></span></h2>
+      <p class="muted">This is your demo dashboard. From here, you can explore movies, rentals, and account settings once the backend is wired.
+      </p>
+      <article>
+        <header>
+          <h3>Quick Actions</h3>
+        </header>
+        <ul>
+          <li><a href="/">Back to Landing</a></li>
+          <li><a href="/login/">Switch Account</a></li>
+          <li><button onclick="logout()">Logout</button></li>
+        </ul>
+      </article>
+    </section>
+  </main>
+  </body>
+  </html>

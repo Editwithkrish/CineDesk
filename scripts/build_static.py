@@ -35,6 +35,15 @@ def main():
         f.write(register_html)
     print(f"Wrote {register_out_dir}/index.html")
 
+    # Render dashboard page to: /dashboard/
+    dashboard_out_dir = os.path.join(OUTPUT_DIR, "dashboard")
+    os.makedirs(dashboard_out_dir, exist_ok=True)
+    dashboard_tpl = env.get_template("dashboard.html")
+    dashboard_html = dashboard_tpl.render()
+    with open(os.path.join(dashboard_out_dir, "index.html"), "w", encoding="utf-8") as f:
+        f.write(dashboard_html)
+    print(f"Wrote {dashboard_out_dir}/index.html")
+
     # Netlify SPA-style fallback: route any path to index.html
     with open(os.path.join(OUTPUT_DIR, "_redirects"), "w", encoding="utf-8") as f:
         f.write("/* /index.html 200\n")

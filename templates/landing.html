@@ -1037,5 +1037,17 @@
             });
         });
     </script>
+    <script>
+      // If logged in, turn primary CTA into Dashboard link
+      (function(){
+        let user = null;
+        try { user = JSON.parse(localStorage.getItem('user')); } catch {}
+        if (!user) return;
+        document.querySelectorAll('.hero-buttons .btn-primary, .nav-btn').forEach(function(el){
+          el.href = '/dashboard/';
+          el.textContent = 'Go to Dashboard';
+        });
+      })();
+    </script>
 </body>
 </html>
