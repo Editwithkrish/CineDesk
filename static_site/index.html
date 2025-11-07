@@ -823,7 +823,7 @@
                     <li>Single device access</li>
                     <li>Email support</li>
                 </ul>
-                <a href="/customer/register" class="plan-button">Get Started</a>
+        <a href="/register/" class="plan-button">Get Started</a>
             </div>
             
             <div class="pricing-card featured">
@@ -850,7 +850,7 @@
                     <li>Exclusive content access</li>
                     <li>Multiple user profiles</li>
                 </ul>
-                <a href="/customer/register" class="plan-button">Get Started</a>
+        <a href="/register/" class="plan-button">Get Started</a>
             </div>
         </div>
     </section>
@@ -1036,6 +1036,18 @@
                 }
             });
         });
+    </script>
+    <script>
+      // If logged in, turn primary CTA into Platform link
+      (function(){
+        let user = null;
+        try { user = JSON.parse(localStorage.getItem('user')); } catch {}
+        if (!user) return;
+        document.querySelectorAll('.hero-buttons .btn-primary, .nav-btn').forEach(function(el){
+          el.href = '/platform/';
+          el.textContent = 'Go to Platform';
+        });
+      })();
     </script>
 </body>
 </html>

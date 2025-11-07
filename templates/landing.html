@@ -1044,8 +1044,8 @@
         try { user = JSON.parse(localStorage.getItem('user')); } catch {}
         if (!user) return;
         document.querySelectorAll('.hero-buttons .btn-primary, .nav-btn').forEach(function(el){
-          el.href = '/dashboard/';
-          el.textContent = 'Go to Dashboard';
+          el.href = '/platform/';
+          el.textContent = 'Go to Platform';
         });
       })();
     </script>

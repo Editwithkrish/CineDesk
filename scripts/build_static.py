@@ -44,11 +44,25 @@ def main():
         f.write(dashboard_html)
     print(f"Wrote {dashboard_out_dir}/index.html")
 
+    # Render platform page to: /platform/
+    platform_out_dir = os.path.join(OUTPUT_DIR, "platform")
+    os.makedirs(platform_out_dir, exist_ok=True)
+    platform_tpl = env.get_template("platform.html")
+    platform_html = platform_tpl.render()
+    with open(os.path.join(platform_out_dir, "index.html"), "w", encoding="utf-8") as f:
+        f.write(platform_html)
+    print(f"Wrote {platform_out_dir}/index.html")
+
     # Netlify routing: explicitly serve static subpages, then fall back to index.html
     redirects = [
+        "/login /login/index.html 200",
         "/login/* /login/index.html 200",
+        "/register /register/index.html 200",
         "/register/* /register/index.html 200",
+        "/dashboard /dashboard/index.html 200",
         "/dashboard/* /dashboard/index.html 200",
+        "/platform /platform/index.html 200",
+        "/platform/* /platform/index.html 200",
         "/* /index.html 200",
     ]
     with open(os.path.join(OUTPUT_DIR, "_redirects"), "w", encoding="utf-8") as f:

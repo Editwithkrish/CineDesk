@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CineDesk • Movie Rental</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1.5.10/css/pico.min.css">
+  <style>
+    body { background:#0f172a; color:#e5e7eb; }
+    main { max-width: 1100px; margin: 2rem auto; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+    .card { background:#111827; border:1px solid #1f2937; border-radius: 14px; padding: 16px; }
+    .title { font-weight:700; }
+    .muted { color:#9ca3af; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom: 16px; }
+    .btn-rent { width:100%; margin-top: 10px; }
+  </style>
+  <script>
+    function getUser() { try { return JSON.parse(localStorage.getItem('user')) || null; } catch { return null; } }
+    async function loadMovies() {
+      const listEl = document.getElementById('movie-list');
+      listEl.innerHTML = '<article class="card"><div>Loading movies…</div></article>';
+      try {
+        const res = await fetch('/.netlify/functions/movies');
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to fetch movies');
+        const arr = data.movies || [];
+        listEl.innerHTML = '';
+        arr.forEach(m => {
+          const a = document.createElement('article');
+          a.className = 'card';
+          a.innerHTML = `<div class="title">${m.title}</div><div class="muted">${m.genre} • ${m.release_year}</div>`;
+          const btn = document.createElement('button');
+          btn.className = 'btn-rent';
+          btn.textContent = 'Rent';
+          btn.onclick = async () => {
+            btn.disabled = true; btn.textContent = 'Renting…';
+            try {
+              const res2 = await fetch('/.netlify/functions/rent', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ movie_id: m.movie_id, title: m.title }) });
+              const d2 = await res2.json();
+              if (!res2.ok) throw new Error(d2.error || 'Rent failed');
+              btn.textContent = 'Rented ✓';
+            } catch (e) { btn.disabled = false; btn.textContent = 'Rent'; alert('Error: ' + e.message); }
+          };
+          a.appendChild(btn);
+          listEl.appendChild(a);
+        });
+      } catch (e) {
+        listEl.innerHTML = `<article class="card"><div>Error loading movies: ${e.message}</div></article>`;
+      }
+    }
+    function logout(){ localStorage.removeItem('user'); window.location.href='/' }
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = getUser();
+      const who = document.getElementById('who');
+      if (user && user.email) { who.textContent = user.email; }
+      loadMovies();
+    });
+  </script>
+</head>
+<body>
+  <nav class="container-fluid">
+    <ul><li><strong>CineDesk</strong></li></ul>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/login/">Login</a></li>
+      <li><a href="/register/">Register</a></li>
+      <li><button class="secondary" onclick="logout()">Logout</button></li>
+    </ul>
+  </nav>
+  <main class="container">
+    <div class="topbar">
+      <h2>Welcome, <span id="who">Customer</span></h2>
+      <small class="muted">Movie Rental Platform</small>
+    </div>
+    <section>
+      <header><h3>Available Movies</h3></header>
+      <div id="movie-list" class="grid"></div>
+    </section>
+  </main>
+</body>
+</html>
