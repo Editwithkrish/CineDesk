@@ -1,0 +1,6 @@
+[build]
+  command = "pip install -r requirements.txt && python scripts/build_static.py"
+  publish = "static_site"
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
