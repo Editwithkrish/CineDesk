@@ -17,5 +17,10 @@ def main():
         f.write(html)
     print(f"Wrote {OUTPUT_DIR}/index.html")
 
+    # Netlify SPA-style fallback: route any path to index.html
+    with open(os.path.join(OUTPUT_DIR, "_redirects"), "w", encoding="utf-8") as f:
+        f.write("/* /index.html 200\n")
+    print(f"Wrote {OUTPUT_DIR}/_redirects")
+
 if __name__ == "__main__":
     main()
