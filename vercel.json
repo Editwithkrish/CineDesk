@@ -1,7 +1,9 @@
 {
+  "version": 2,
   "functions": {
     "api/index.py": {
-      "runtime": "python3.11"
+      "runtime": "@vercel/python@4.3.0",
+      "maxDuration": 60
     }
   },
   "routes": [
