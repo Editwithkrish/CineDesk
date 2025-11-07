@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+from sqlalchemy import text
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import os
@@ -398,6 +399,96 @@ def admin_customers():
     customers = Customer.query.all()
     return render_template('admin_customers.html', customers=customers)
 
+@app.route('/admin/customers/add', methods=['GET', 'POST'])
+def admin_add_customer():
+    if 'admin_id' not in session:
+        return redirect(url_for('admin_login'))
+    if request.method == 'POST':
+        if request.is_json:
+            data = request.get_json() or {}
+            name = sanitize_text(data.get('name',''), 100)
+            email = sanitize_text(data.get('email',''), 100)
+            phone = sanitize_text(data.get('phone',''), 15)
+            address = sanitize_text(data.get('address',''), 255)
+            pwd = data.get('password','')
+        else:
+            name = sanitize_text(request.form.get('name',''), 100)
+            email = sanitize_text(request.form.get('email',''), 100)
+            phone = sanitize_text(request.form.get('phone',''), 15)
+            address = sanitize_text(request.form.get('address',''), 255)
+            pwd = request.form.get('password','')
+        if not (name and email and phone and address and pwd):
+            if request.is_json:
+                return { 'status': 'danger', 'message': 'Invalid input' }, 400
+            flash('Invalid input', 'danger')
+            return redirect(url_for('admin_add_customer'))
+        customer = Customer(name=name, email=email, phone=phone, address=address, password=generate_password_hash(pwd))
+        try:
+            db.session.add(customer)
+            db.session.commit()
+            logger.info('Admin added customer: %s', email)
+        except Exception:
+            db.session.rollback()
+            logger.exception('Failed to add customer %s', email)
+            if request.is_json:
+                return { 'status': 'danger', 'message': 'Failed to add customer' }, 500
+            flash('Failed to add customer', 'danger')
+            return redirect(url_for('admin_add_customer'))
+        if request.is_json:
+            return { 'status': 'success', 'message': 'Customer added', 'redirect': url_for('admin_customers') }
+        flash('Customer added', 'success')
+        return redirect(url_for('admin_customers'))
+    return render_template('admin_customer_add.html')
+
+@app.route('/admin/customers/edit/<int:id>', methods=['GET', 'POST'])
+def admin_edit_customer(id):
+    if 'admin_id' not in session:
+        return redirect(url_for('admin_login'))
+    customer = Customer.query.get_or_404(id)
+    if request.method == 'POST':
+        if request.is_json:
+            data = request.get_json() or {}
+            customer.name = sanitize_text(data.get('name', customer.name), 100)
+            customer.email = sanitize_text(data.get('email', customer.email), 100)
+            customer.phone = sanitize_text(data.get('phone', customer.phone), 15)
+            customer.address = sanitize_text(data.get('address', customer.address), 255)
+        else:
+            customer.name = sanitize_text(request.form.get('name', customer.name), 100)
+            customer.email = sanitize_text(request.form.get('email', customer.email), 100)
+            customer.phone = sanitize_text(request.form.get('phone', customer.phone), 15)
+            customer.address = sanitize_text(request.form.get('address', customer.address), 255)
+        try:
+            db.session.commit()
+            logger.info('Admin edited customer: %s', customer.email)
+        except Exception:
+            db.session.rollback()
+            logger.exception('Failed to edit customer %s', customer.email)
+            if request.is_json:
+                return { 'status': 'danger', 'message': 'Failed to edit customer' }, 500
+            flash('Failed to edit customer', 'danger')
+            return redirect(url_for('admin_edit_customer', id=id))
+        if request.is_json:
+            return { 'status': 'success', 'message': 'Customer saved', 'redirect': url_for('admin_customers') }
+        flash('Customer saved', 'success')
+        return redirect(url_for('admin_customers'))
+    return render_template('admin_customer_edit.html', customer=customer)
+
+@app.route('/admin/customers/delete/<int:id>')
+def admin_delete_customer(id):
+    if 'admin_id' not in session:
+        return redirect(url_for('admin_login'))
+    customer = Customer.query.get_or_404(id)
+    try:
+        db.session.delete(customer)
+        db.session.commit()
+        logger.info('Admin deleted customer: %s', id)
+        flash('Customer deleted', 'success')
+    except Exception:
+        db.session.rollback()
+        logger.exception('Failed to delete customer %s', id)
+        flash('Failed to delete customer', 'danger')
+    return redirect(url_for('admin_customers'))
+
 @app.route('/admin/rentals')
 def admin_rentals():
     if 'admin_id' not in session:
@@ -415,40 +506,33 @@ def add_rental():
             data = request.get_json() or {}
             movie_id = data.get('movie_id')
             customer_id = data.get('customer_id')
+            days = int(data.get('days', 3))
         else:
             movie_id = request.form['movie_id']
             customer_id = request.form['customer_id']
-        
-        movie = Movie.query.get(movie_id)
-        if movie.availability_status == 'Available':
-            rental = Rental(
-                movie_id=movie_id,
-                customer_id=customer_id,
-                rental_date=datetime.now().date(),
-                rental_status='Not Returned'
-            )
-            movie.availability_status = 'Rented'
-            try:
-                db.session.add(rental)
-                db.session.commit()
-                logger.info('Rental recorded: movie=%s customer=%s', movie_id, customer_id)
-            except Exception:
-                db.session.rollback()
-                logger.exception('Failed to record rental movie=%s customer=%s', movie_id, customer_id)
-                if request.is_json:
-                    return { 'status': 'danger', 'message': 'Failed to record rental' }, 500
-                else:
-                    flash('Failed to record rental', 'danger')
-                    return redirect(url_for('admin_rentals'))
+            days = int(request.form.get('days', '3'))
+
+        try:
+            db.session.execute(text('CALL sp_create_rental(:customer_id, :movie_id, :days)'), {
+                'customer_id': customer_id,
+                'movie_id': movie_id,
+                'days': days
+            })
+            db.session.commit()
+            logger.info('Rental recorded via procedure: movie=%s customer=%s days=%s', movie_id, customer_id, days)
+        except Exception:
+            db.session.rollback()
+            logger.exception('Failed to record rental movie=%s customer=%s', movie_id, customer_id)
             if request.is_json:
-                return { 'status': 'success', 'message': 'Rental recorded successfully', 'redirect': url_for('admin_rentals') }
+                return { 'status': 'danger', 'message': 'Failed to record rental' }, 500
             else:
-                flash('Rental recorded successfully!', 'success')
+                flash('Failed to record rental', 'danger')
                 return redirect(url_for('admin_rentals'))
         if request.is_json:
-            return { 'status': 'danger', 'message': 'Movie is not available' }, 400
+            return { 'status': 'success', 'message': 'Rental recorded successfully', 'redirect': url_for('admin_rentals') }
         else:
-            flash('Movie is not available!', 'danger')
+            flash('Rental recorded successfully!', 'success')
+            return redirect(url_for('admin_rentals'))
     
     movies = Movie.query.filter_by(availability_status='Available').all()
     customers = Customer.query.all()
@@ -482,6 +566,27 @@ def admin_logout():
     session.pop('is_admin', None)
     flash('Logged out successfully!', 'success')
     return redirect(url_for('index'))
+
+# Admin Tools
+@app.route('/admin/tools')
+def admin_tools():
+    if 'admin_id' not in session:
+        return redirect(url_for('admin_login'))
+    return render_template('admin_tools.html')
+
+@app.route('/admin/tools/recalc-popularity', methods=['POST'])
+def admin_recalc_popularity():
+    if 'admin_id' not in session:
+        return redirect(url_for('admin_login'))
+    try:
+        db.session.execute(text('CALL sp_recalc_popularity()'))
+        db.session.commit()
+        logger.info('Recalculated popularity via cursor procedure')
+        return { 'status': 'success', 'message': 'Popularity recalculated' }
+    except Exception:
+        db.session.rollback()
+        logger.exception('Failed to recalc popularity')
+        return { 'status': 'danger', 'message': 'Failed to recalc popularity' }, 500
 
 # Customer Routes
 @app.route('/customer/register', methods=['GET', 'POST'])

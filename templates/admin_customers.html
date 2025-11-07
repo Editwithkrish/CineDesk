@@ -8,7 +8,8 @@
 <a href="{{ url_for('admin_logout') }}">Logout</a>
 {% endblock %}
 {% block content %}
-<h2 style="color: #333; margin-bottom: 30px;">👥 Customer Management</h2>
+<h2 style="color: #333; margin-bottom: 12px;">👥 Customer Management</h2>
+<p><a class="btn" href="{{ url_for('admin_add_customer') }}">➕ Add Customer</a></p>
 <table>
   <thead>
     <tr>
@@ -17,6 +18,7 @@
       <th>Email</th>
       <th>Phone</th>
       <th>Address</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
@@ -27,6 +29,10 @@
       <td>{{ customer.email }}</td>
       <td>{{ customer.phone }}</td>
       <td>{{ customer.address }}</td>
+      <td>
+        <a class="btn" href="{{ url_for('admin_edit_customer', id=customer.customer_id) }}">Edit</a>
+        <a class="btn btn-danger" href="{{ url_for('admin_delete_customer', id=customer.customer_id) }}" onclick="return confirm('Delete this customer?')">Delete</a>
+      </td>
     </tr>
     {% endfor %}
   </tbody>

@@ -1,12 +1,56 @@
 {% extends 'base.html' %}
 {% block title %}Admin Dashboard{% endblock %}
 {% block content %}
-<h1>Admin Dashboard</h1>
-<div class="grid">
-  <div><strong>Total Movies:</strong> {{ total_movies }}</div>
-  <div><strong>Total Customers:</strong> {{ total_customers }}</div>
-  <div><strong>Active Rentals:</strong> {{ active_rentals }}</div>
-  <div><strong>Available Movies:</strong> {{ available_movies }}</div>
- </div>
-<p><a class="btn" href="/admin/movies">Manage Movies</a> <a class="btn" href="/admin/customers">View Customers</a> <a class="btn" href="/admin/rentals">View Rentals</a></p>
+<h1 style="margin-bottom: 12px;">Admin Dashboard</h1>
+<div class="stats-grid" style="margin-bottom: 16px;">
+  <div class="stat-card">
+    <h3>{{ total_movies }}</h3>
+    <p>Total Movies</p>
+  </div>
+  <div class="stat-card">
+    <h3>{{ total_customers }}</h3>
+    <p>Total Customers</p>
+  </div>
+  <div class="stat-card">
+    <h3>{{ active_rentals }}</h3>
+    <p>Active Rentals</p>
+  </div>
+  <div class="stat-card">
+    <h3>{{ available_movies }}</h3>
+    <p>Available Movies</p>
+  </div>
+</div>
+
+<div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 12px;">
+  <a class="btn" href="/admin/movies">Manage Movies</a>
+  <a class="btn" href="/admin/customers">Manage Customers</a>
+  <a class="btn" href="/admin/rentals">Manage Rentals</a>
+  <a class="btn" href="/admin/tools">Admin Tools</a>
+  <button class="btn btn-success" id="recalc-btn" type="button">Recalculate Popularity</button>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('recalc-btn');
+    if (btn) {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true; const original = btn.textContent; btn.textContent = 'Running…';
+        try {
+          const res = await fetch('/admin/tools/recalc-popularity', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+          const ct = res.headers.get('content-type') || '';
+          if (ct.includes('application/json')) {
+            const json = await res.json();
+            showToast(json.message || 'Done', json.status || 'success');
+          } else {
+            showToast('Done', 'success');
+          }
+        } catch (e) {
+          showToast('Failed to run', 'danger');
+        } finally {
+          btn.disabled = false; btn.textContent = original;
+        }
+      });
+    }
+  });
+</script>
 {% endblock %}

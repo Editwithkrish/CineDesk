@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Admin Tools{% endblock %}
+{% block content %}
+<h1 style="margin-bottom: 12px;">Admin Tools</h1>
+<p style="color:#666;">Run maintenance and data sync actions.</p>
+
+<div class="card" style="margin-top: 12px;">
+  <h3 style="margin-top:0;">Popularity & Counts</h3>
+  <p>Recalculate <code>rentals_count</code> for all movies using the cursor-based procedure.</p>
+  <p><button class="btn" id="recalc-btn" type="button">Recalculate Popularity</button></p>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('recalc-btn');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+      btn.disabled = true; const original = btn.textContent; btn.textContent = 'Running…';
+      try {
+        const res = await fetch('/admin/tools/recalc-popularity', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('application/json')) {
+          const json = await res.json();
+          showToast(json.message || 'Done', json.status || 'success');
+        } else {
+          showToast('Done', 'success');
+        }
+      } catch (e) {
+        showToast('Failed to run', 'danger');
+      } finally {
+        btn.disabled = false; btn.textContent = original;
+      }
+    });
+  });
+</script>
+{% endblock %}

@@ -8,8 +8,10 @@
   <style>
     main { max-width: 900px; margin: 2rem auto; }
     .muted { color: #6b7280; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 16px; }
-    .card { padding: 16px; border: 1px solid #eee; border-radius: 12px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 16px; }
+    .stat-card { color:#fff; padding: 18px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .stat-card h3 { margin: 0; font-size: 28px; }
+    .stat-card p { margin: 4px 0 0; opacity: 0.9; }
     .status { margin-top: 8px; font-size: 14px; }
   </style>
   <script>
@@ -77,21 +79,23 @@
       <h2>Welcome, <span id="who"></span></h2>
       <p class="muted">Demo admin area. Backend actions require the Flask server.</p>
 
-      <div class="grid">
-        <div class="card"><strong>Total Movies</strong><div id="stat-total-movies">–</div></div>
-        <div class="card"><strong>Total Customers</strong><div id="stat-total-customers">–</div></div>
-        <div class="card"><strong>Active Rentals</strong><div id="stat-active-rentals">–</div></div>
-        <div class="card"><strong>Available Movies</strong><div id="stat-available-movies">–</div></div>
+      <div class="stats-grid">
+        <div class="stat-card"><h3 id="stat-total-movies">–</h3><p>Total Movies</p></div>
+        <div class="stat-card"><h3 id="stat-total-customers">–</h3><p>Total Customers</p></div>
+        <div class="stat-card"><h3 id="stat-active-rentals">–</h3><p>Active Rentals</p></div>
+        <div class="stat-card"><h3 id="stat-available-movies">–</h3><p>Available Movies</p></div>
       </div>
       <div class="status" id="status">–</div>
 
       <article style="margin-top: 16px;">
         <header><h3>Manage</h3></header>
-        <ul>
-          <li><a href="#" aria-disabled="true">Movies (requires backend)</a></li>
-          <li><a href="#" aria-disabled="true">Customers (requires backend)</a></li>
-          <li><a href="#" aria-disabled="true">Rentals (requires backend)</a></li>
-        </ul>
+        <p class="muted">These actions require the Flask backend:</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <a role="button" aria-disabled="true">Movies</a>
+          <a role="button" aria-disabled="true">Customers</a>
+          <a role="button" aria-disabled="true">Rentals</a>
+          <a role="button" aria-disabled="true">Admin Tools</a>
+        </div>
       </article>
     </section>
   </main>
