@@ -17,6 +17,24 @@ def main():
         f.write(html)
     print(f"Wrote {OUTPUT_DIR}/index.html")
 
+    # Render login page to directory-style path: /login/
+    login_out_dir = os.path.join(OUTPUT_DIR, "login")
+    os.makedirs(login_out_dir, exist_ok=True)
+    login_tpl = env.get_template("login.html")
+    login_html = login_tpl.render()
+    with open(os.path.join(login_out_dir, "index.html"), "w", encoding="utf-8") as f:
+        f.write(login_html)
+    print(f"Wrote {login_out_dir}/index.html")
+
+    # Render register page to: /register/
+    register_out_dir = os.path.join(OUTPUT_DIR, "register")
+    os.makedirs(register_out_dir, exist_ok=True)
+    register_tpl = env.get_template("register.html")
+    register_html = register_tpl.render()
+    with open(os.path.join(register_out_dir, "index.html"), "w", encoding="utf-8") as f:
+        f.write(register_html)
+    print(f"Wrote {register_out_dir}/index.html")
+
     # Netlify SPA-style fallback: route any path to index.html
     with open(os.path.join(OUTPUT_DIR, "_redirects"), "w", encoding="utf-8") as f:
         f.write("/* /index.html 200\n")
