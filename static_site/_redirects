@@ -6,4 +6,8 @@
 /dashboard/* /dashboard/index.html 200
 /platform /platform/index.html 200
 /platform/* /platform/index.html 200
+ /admin /admin/index.html 200
+ /admin/* /admin/index.html 200
+ /admin/login /admin/login/index.html 200
+ /admin/login/* /admin/login/index.html 200
 /* /index.html 200

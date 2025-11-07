@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login • CineDesk</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1.5.10/css/pico.min.css">
+  <style>
+    main { max-width: 480px; margin: 3rem auto; }
+  </style>
+  <script>
+    async function handleLogin(ev){
+      ev.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const status = document.getElementById('status');
+      status.textContent = 'Signing in…';
+      try {
+        const res = await fetch('/.netlify/functions/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email, password }) });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Login failed');
+        const user = data.user || { email };
+        user.role = 'admin'; // force admin role for this login route
+        localStorage.setItem('user', JSON.stringify(user));
+        status.textContent = 'Welcome, ' + user.email;
+        setTimeout(() => { window.location.href = '/admin/'; }, 600);
+      } catch(e){ status.textContent = 'Error: ' + e.message; }
+    }
+  </script>
+</head>
+<body>
+  <nav class="container-fluid">
+    <ul><li><strong>CineDesk Admin</strong></li></ul>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/login/">User Login</a></li>
+    </ul>
+  </nav>
+  <main class="container">
+    <h2>Admin Login</h2>
+    <p>Use admin credentials to access the admin area.</p>
+    <form onsubmit="handleLogin(event)">
+      <label>Email<input type="email" id="email" required placeholder="admin@example.com" /></label>
+      <label>Password<input type="password" id="password" required placeholder="••••••••" /></label>
+      <button type="submit">Login</button>
+      <p id="status" style="margin-top:8px; color:#6b7280;"> </p>
+    </form>
+  </main>
+</body>
+</html>

@@ -10,6 +10,7 @@
     .muted { color: #6b7280; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 16px; }
     .card { padding: 16px; border: 1px solid #eee; border-radius: 12px; }
+    .status { margin-top: 8px; font-size: 14px; }
   </style>
   <script>
     function getUser() {
@@ -18,6 +19,20 @@
     function logout() {
       localStorage.removeItem('user');
       window.location.href = '/';
+    }
+    async function loadStats(){
+      const status = document.getElementById('status');
+      try {
+        status.textContent = 'Loading stats…';
+        const res = await fetch('/.netlify/functions/stats');
+        const data = await res.json();
+        if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Failed');
+        document.getElementById('stat-total-movies').textContent = data.summary.total_movies;
+        document.getElementById('stat-total-customers').textContent = data.summary.total_customers;
+        document.getElementById('stat-active-rentals').textContent = data.summary.active_rentals;
+        document.getElementById('stat-available-movies').textContent = data.summary.available_movies;
+        status.textContent = 'Updated ' + new Date(data.server_time).toLocaleString();
+      } catch(e){ status.textContent = 'Error: ' + e.message; }
     }
     document.addEventListener('DOMContentLoaded', () => {
       const user = getUser();
@@ -31,6 +46,7 @@
         who.textContent = user.email || 'Admin';
         gate.style.display = 'none';
         admin.style.display = 'block';
+        loadStats();
       }
     });
   </script>
@@ -62,11 +78,12 @@
       <p class="muted">Demo admin area. Backend actions require the Flask server.</p>
 
       <div class="grid">
-        <div class="card"><strong>Total Movies</strong><div>— demo —</div></div>
-        <div class="card"><strong>Total Customers</strong><div>— demo —</div></div>
-        <div class="card"><strong>Active Rentals</strong><div>— demo —</div></div>
-        <div class="card"><strong>Available Movies</strong><div>— demo —</div></div>
+        <div class="card"><strong>Total Movies</strong><div id="stat-total-movies">–</div></div>
+        <div class="card"><strong>Total Customers</strong><div id="stat-total-customers">–</div></div>
+        <div class="card"><strong>Active Rentals</strong><div id="stat-active-rentals">–</div></div>
+        <div class="card"><strong>Available Movies</strong><div id="stat-available-movies">–</div></div>
       </div>
+      <div class="status" id="status">–</div>
 
       <article style="margin-top: 16px;">
         <header><h3>Manage</h3></header>
