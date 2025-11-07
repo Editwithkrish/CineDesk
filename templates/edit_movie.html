@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Edit Movie{% endblock %}
+{% block content %}
+<h2 style="color: #333; margin-bottom: 10px;">✏️ Edit Movie</h2>
+<p id="save-indicator" style="margin-bottom: 16px; color:#666;">Idle</p>
+<form id="edit-movie-form" data-movie-id="{{ movie.movie_id }}" method="post" class="card" style="max-width: 600px;">
+  <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+  <div class="form-group">
+    <label for="title">Title</label>
+    <input id="title" name="title" value="{{ movie.title }}" required>
+  </div>
+  <div class="form-group">
+    <label for="genre">Genre</label>
+    <select id="genre" name="genre" required>
+      <option value="Action" {% if movie.genre == 'Action' %}selected{% endif %}>Action</option>
+      <option value="Comedy" {% if movie.genre == 'Comedy' %}selected{% endif %}>Comedy</option>
+      <option value="Drama" {% if movie.genre == 'Drama' %}selected{% endif %}>Drama</option>
+      <option value="Horror" {% if movie.genre == 'Horror' %}selected{% endif %}>Horror</option>
+      <option value="Sci-Fi" {% if movie.genre == 'Sci-Fi' %}selected{% endif %}>Sci-Fi</option>
+      <option value="Romance" {% if movie.genre == 'Romance' %}selected{% endif %}>Romance</option>
+      <option value="Thriller" {% if movie.genre == 'Thriller' %}selected{% endif %}>Thriller</option>
+      <option value="Animation" {% if movie.genre == 'Animation' %}selected{% endif %}>Animation</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="release_year">Release Year</label>
+    <input id="release_year" name="release_year" type="number" value="{{ movie.release_year }}" min="1900" max="2025" required>
+  </div>
+  <div class="form-group">
+    <label for="availability_status">Status</label>
+    <select id="availability_status" name="availability_status" required>
+      <option value="Available" {% if movie.availability_status=='Available' %}selected{% endif %}>Available</option>
+      <option value="Rented" {% if movie.availability_status=='Rented' %}selected{% endif %}>Rented</option>
+    </select>
+  </div>
+  <div style="display:flex; gap:10px;">
+    <button class="btn" type="submit">Update</button>
+    <a class="btn btn-danger" href="{{ url_for('admin_movies') }}">Cancel</a>
+  </div>
+ </form>
+{% endblock %}

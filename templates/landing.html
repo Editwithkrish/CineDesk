@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineRent - Premium Movie Rental System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Navigation Bar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 20px 0;
+            transition: all 0.3s;
+        }
+
+        nav.scrolled {
+            padding: 15px 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #667eea;
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 255, 255, 0.03) 10px,
+                rgba(255, 255, 255, 0.03) 20px
+            );
+            animation: slide 20s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .hero-content {
+            text-align: center;
+            color: white;
+            z-index: 1;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+
+        .hero h1 {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 24px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.2s backwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease 0.4s backwards;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 16px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-3px);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 20px;
+            background: #f8f9fa;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 60px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+        /* Live Stats */
+        .live-stats { padding: 80px 20px; background: #fff; }
+        .stats-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+        .stat-card { background:#f8f9fa; padding:24px; border-radius:16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .stat-card h4 { margin-bottom: 8px; color:#333; }
+        .stat-value { font-size: 32px; font-weight: 700; color:#667eea; }
+        .top-movies { max-width: 1200px; margin: 32px auto 0; display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px; }
+        .movie-item { background:#f8f9fa; border-radius:12px; padding:16px; }
+        .status-bar { text-align:center; margin-top: 16px; color:#666; }
+        .loader { display:none; width: 24px; height: 24px; border: 3px solid #ddd; border-top-color:#667eea; border-radius:50%; animation: spin 1s linear infinite; margin: 0 auto; }
+        .loader.active { display:block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-card h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            padding: 100px 20px;
+            background: white;
+        }
+
+        .steps {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0 auto 20px;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .step h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .step p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stats-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            text-align: center;
+        }
+
+        .stat-item h2 {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .stat-item p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 100px 20px;
+            background: #f8f9fa;
+        }
+
+        .pricing-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .pricing-card {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 20px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .pricing-card.featured {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured:hover {
+            transform: scale(1.08) translateY(-10px);
+        }
+
+        .plan-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .plan-price {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .plan-price span {
+            font-size: 18px;
+            font-weight: normal;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .plan-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .pricing-card.featured .plan-features li {
+            border-bottom-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .plan-features li::before {
+            content: '✓';
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .pricing-card.featured .plan-features li::before {
+            color: white;
+        }
+
+        .plan-button {
+            background: #667eea;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .pricing-card.featured .plan-button {
+            background: white;
+            color: #667eea;
+        }
+
+        .plan-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Testimonials Section */
+        .testimonials {
+            padding: 100px 20px;
+            background: white;
+        }
+
+        .testimonials-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+        }
+
+        .testimonial-card {
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .testimonial-card::before {
+            content: '"';
+            font-size: 80px;
+            color: #667eea;
+            opacity: 0.2;
+            position: absolute;
+            top: 20px;
+            left: 30px;
+        }
+
+        .testimonial-text {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #666;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .author-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .author-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 100px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .cta p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        footer {
+            background: #1a1a1a;
+            color: white;
+            padding: 60px 20px 30px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section a {
+            color: #999;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: #667eea;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: #667eea;
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #999;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 42px;
+            }
+
+            .hero p {
+                font-size: 18px;
+            }
+
+            .section-title {
+                font-size: 36px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span>🎬</span> CineRent
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#testimonials">Reviews</a></li>
+            </ul>
+            <a href="/customer/login" class="nav-btn">Get Started</a>
+            <button class="mobile-menu-btn">☰</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Your Movie Night, Simplified</h1>
+            <p>Discover, rent, and enjoy thousands of movies from the comfort of your home. Premium quality, unbeatable prices.</p>
+            <div class="hero-buttons">
+                <a href="/customer/register" class="btn-primary">Start Free Trial</a>
+                <a href="#features" class="btn-secondary">Learn More</a>
+        </div>
+    </div>
+</section>
+
+    <!-- Features Section -->
+<section class="features" id="features">
+        <h2 class="section-title">Why Choose CineRent?</h2>
+        <p class="section-subtitle">Experience the best movie rental service with features designed for movie lovers</p>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎥</div>
+                <h3>Huge Collection</h3>
+                <p>Access thousands of movies across all genres, from classic cinema to the latest blockbusters.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Instant Rental</h3>
+                <p>Rent any available movie with just one click. No waiting, no hassle. Start watching immediately.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3>Best Prices</h3>
+                <p>Competitive pricing with flexible rental periods. Get the best value for your entertainment budget.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>Easy Management</h3>
+                <p>Track your rentals, view history, and manage returns all from one simple dashboard.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Secure & Safe</h3>
+                <p>Your data is protected with industry-standard encryption and secure payment processing.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Personalized</h3>
+                <p>Get movie recommendations based on your viewing history and preferences.</p>
+            </div>
+        </div>
+</section>
+
+<!-- Live Stats Section -->
+<section class="live-stats" id="live">
+    <h2 class="section-title">Live System Stats</h2>
+    <p class="section-subtitle">Real-time overview of movies, customers, and rentals.</p>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h4>Total Movies</h4>
+            <div class="stat-value" id="stat-total-movies">–</div>
+        </div>
+        <div class="stat-card">
+            <h4>Available Movies</h4>
+            <div class="stat-value" id="stat-available-movies">–</div>
+        </div>
+        <div class="stat-card">
+            <h4>Total Customers</h4>
+            <div class="stat-value" id="stat-total-customers">–</div>
+        </div>
+        <div class="stat-card">
+            <h4>Active Rentals</h4>
+            <div class="stat-value" id="stat-active-rentals">–</div>
+        </div>
+    </div>
+    <div class="status-bar">
+        <div class="loader" id="stats-loader" aria-label="Loading"></div>
+        <div id="stats-status">Connecting…</div>
+        <small id="stats-updated" style="display:block; margin-top:6px;">Last updated: –</small>
+    </div>
+    <div class="top-movies" id="top-movies"></div>
+</section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">Get started in three simple steps</p>
+        
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Create Account</h3>
+                <p>Sign up for free in less than a minute. No credit card required for registration.</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Browse & Select</h3>
+                <p>Explore our vast collection of movies. Filter by genre, year, or search for specific titles.</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Rent & Enjoy</h3>
+                <p>Click to rent and start watching. Return anytime through your dashboard.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h2>10,000+</h2>
+                <p>Movies Available</p>
+            </div>
+            <div class="stat-item">
+                <h2>50,000+</h2>
+                <p>Happy Customers</p>
+            </div>
+            <div class="stat-item">
+                <h2>100,000+</h2>
+                <p>Rentals Completed</p>
+            </div>
+            <div class="stat-item">
+                <h2>4.9/5</h2>
+                <p>Customer Rating</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <h2 class="section-title">Simple, Transparent Pricing</h2>
+        <p class="section-subtitle">Choose the plan that works best for you</p>
+        
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="plan-name">Basic</div>
+                <div class="plan-price">$5<span>/rental</span></div>
+                <ul class="plan-features">
+                    <li>3-day rental period</li>
+                    <li>HD quality streaming</li>
+                    <li>Single device access</li>
+                    <li>Email support</li>
+                </ul>
+                <a href="/customer/register" class="plan-button">Get Started</a>
+            </div>
+            
+            <div class="pricing-card featured">
+                <div class="plan-name">Premium</div>
+                <div class="plan-price">$29<span>/month</span></div>
+                <ul class="plan-features">
+                    <li>Unlimited rentals</li>
+                    <li>4K Ultra HD quality</li>
+                    <li>5 concurrent devices</li>
+                    <li>Priority support</li>
+                    <li>Early access to new releases</li>
+                </ul>
+                <a href="/customer/register" class="plan-button">Most Popular</a>
+            </div>
+            
+            <div class="pricing-card">
+                <div class="plan-name">Family</div>
+                <div class="plan-price">$49<span>/month</span></div>
+                <ul class="plan-features">
+                    <li>Unlimited rentals</li>
+                    <li>4K Ultra HD quality</li>
+                    <li>10 concurrent devices</li>
+                    <li>24/7 phone support</li>
+                    <li>Exclusive content access</li>
+                    <li>Multiple user profiles</li>
+                </ul>
+                <a href="/customer/register" class="plan-button">Get Started</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+        <h2 class="section-title">What Our Customers Say</h2>
+        <p class="section-subtitle">Join thousands of satisfied movie lovers</p>
+        
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <p class="testimonial-text">CineRent has completely changed how I watch movies. The selection is amazing and the rental process is so smooth. Highly recommended!</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">JD</div>
+                    <div class="author-info">
+                        <h4>John Doe</h4>
+                        <p>Movie Enthusiast</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <p class="testimonial-text">Best movie rental service I've used. The prices are fair, the quality is excellent, and I love being able to track all my rentals in one place.</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">SM</div>
+                    <div class="author-info">
+                        <h4>Sarah Miller</h4>
+                        <p>Premium Member</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <p class="testimonial-text">As a family, we love the variety of movies available. From kids' animations to adult dramas, there's something for everyone!</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">RJ</div>
+                    <div class="author-info">
+                        <h4>Robert Johnson</h4>
+                        <p>Family Plan User</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <h2>Ready to Start Your Movie Journey?</h2>
+        <p>Join thousands of movie lovers and get access to unlimited entertainment</p>
+        <div class="hero-buttons">
+            <a href="/customer/register" class="btn-primary">Create Free Account</a>
+            <a href="/admin/login" class="btn-secondary">Admin Portal</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CineRent</h3>
+                <p>Your premium destination for movie rentals. Quality entertainment at your fingertips.</p>
+                <div class="social-links">
+                    <a href="#">📘</a>
+                    <a href="#">🐦</a>
+                    <a href="#">📷</a>
+                    <a href="#">▶️</a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="/customer/register">Sign Up</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">FAQs</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <ul>
+                    <li>📧 support@cinerent.com</li>
+                    <li>📞 +91 98765 43210</li>
+                    <li>📍 Mumbai, Maharashtra, India</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 CineRent. All rights reserved. Made with ❤️ for movie lovers.</p>
+        </div>
+</footer>
+
+<script>
+  const API_URL = '/api/landing_stats?limit=8';
+  const API_TOKEN = '{{ api_token or "" }}';
+  let retryDelay = 5000; // start with 5s
+  let scheduled = null;
+
+  function setText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
+  function setLoader(active) { const l = document.getElementById('stats-loader'); if (l) l.classList.toggle('active', !!active); }
+  function fmtTime(ts) {
+    try { const d = new Date(ts); return d.toLocaleString(); } catch { return ts; }
+  }
+  function renderTop(movies) {
+    const c = document.getElementById('top-movies');
+    if (!c) return;
+    c.innerHTML = '';
+    if (!movies || !movies.length) { c.innerHTML = '<div class="movie-item">No available movies currently.</div>'; return; }
+    movies.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'movie-item';
+      div.innerHTML = `<strong>${m.title}</strong><div style="color:#666;">${m.genre} • ${m.release_year}</div>`;
+      c.appendChild(div);
+    });
+  }
+
+  async function fetchStats() {
+    setLoader(true);
+    try {
+      const res = await fetch(API_URL, {
+        headers: API_TOKEN ? { 'Authorization': `Bearer ${API_TOKEN}` } : {}
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.status !== 'success') throw new Error(data.message || 'Bad response');
+      setText('stat-total-movies', data.summary.total_movies);
+      setText('stat-available-movies', data.summary.available_movies);
+      setText('stat-total-customers', data.summary.total_customers);
+      setText('stat-active-rentals', data.summary.active_rentals);
+      setText('stats-status', 'Online');
+      setText('stats-updated', `Last updated: ${fmtTime(data.server_time)}`);
+      renderTop(data.top_available);
+      retryDelay = 5000; // reset backoff
+    } catch (e) {
+      setText('stats-status', `Disconnected. Retrying in ${Math.round(retryDelay/1000)}s…`);
+      // Exponential backoff (cap at 30s)
+      retryDelay = Math.min(30000, Math.floor(retryDelay * 1.8));
+    } finally {
+      setLoader(false);
+      if (scheduled) clearTimeout(scheduled);
+      scheduled = setTimeout(fetchStats, retryDelay);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchStats();
+  });
+</script>
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

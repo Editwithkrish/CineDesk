@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Admin Rentals{% endblock %}
+{% block content %}
+<h2 style="margin-bottom: 12px;">📋 Rentals</h2>
+<p><a class="btn" href="{{ url_for('add_rental') }}">➕ Add Rental</a></p>
+<table>
+  <thead><tr><th>Rental ID</th><th>Movie</th><th>Customer</th><th>Rented</th><th>Returned</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for r in rentals %}
+    <tr>
+      <td>{{ r.rental_id }}</td>
+      <td>{{ r.movie.title }}</td>
+      <td>{{ r.customer.name }}</td>
+      <td>{{ r.rental_date }}</td>
+      <td>{{ r.return_date or '-' }}</td>
+      <td>
+        <span class="status-badge status-{{ 'returned' if r.rental_status == 'Returned' else 'rented' }}">{{ r.rental_status }}</span>
+      </td>
+      <td>
+        {% if r.rental_status != 'Returned' %}
+        <a class="btn btn-success" href="{{ url_for('return_rental', id=r.rental_id) }}">Mark Returned</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+ </table>
+{% endblock %}

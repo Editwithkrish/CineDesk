@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<h1>Admin Dashboard</h1>
+<div class="grid">
+  <div><strong>Total Movies:</strong> {{ total_movies }}</div>
+  <div><strong>Total Customers:</strong> {{ total_customers }}</div>
+  <div><strong>Active Rentals:</strong> {{ active_rentals }}</div>
+  <div><strong>Available Movies:</strong> {{ available_movies }}</div>
+ </div>
+<p><a class="btn" href="/admin/movies">Manage Movies</a> <a class="btn" href="/admin/customers">View Customers</a> <a class="btn" href="/admin/rentals">View Rentals</a></p>
+{% endblock %}

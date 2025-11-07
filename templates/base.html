@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Movie Rental System{% endblock %}</title>
+  <style>
+    :root {
+      --primary: #667eea;
+      --primary-dark: #5568d3;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --bg: #f5f7fa;
+      --text: #333;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+    header { background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%); color: #fff; padding: 16px; }
+    nav a { color: #fff; text-decoration: none; margin-right: 12px; padding: 8px 10px; border-radius: 6px; }
+    nav a:hover { background: rgba(255,255,255,0.18); }
+    main { max-width: 1000px; margin: 24px auto; background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
+    a { color: var(--primary); text-decoration: none; }
+    .btn { background: var(--primary); color: #fff; padding: 10px 14px; border-radius: 8px; display: inline-block; border: none; cursor: pointer; transition: all 0.2s; }
+    .btn:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
+    .btn-success { background: var(--success); }
+    .btn-success:hover { background: #16a34a; }
+    .btn-danger { background: var(--danger); }
+    .btn-danger:hover { background: #dc2626; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap:16px; }
+    .card { background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    table { width:100%; border-collapse:collapse; margin-top: 12px; }
+    th, td { padding:12px; border-bottom:1px solid #eee; text-align:left; }
+    thead th { background:#f8f9fa; font-weight:600; }
+    tr:hover { background:#fafafa; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display:block; margin-bottom:6px; font-weight:600; }
+    .form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 12px; border:2px solid #e5e7eb; border-radius:10px; font-size:15px; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(102,126,234,0.2); }
+    .status-badge { display:inline-block; padding:6px 12px; border-radius:999px; font-size:13px; font-weight:600; }
+    .status-available { background:#dcfce7; color:#166534; }
+    .status-rented { background:#fee2e2; color:#7f1d1d; }
+    .status-returned { background:#dbeafe; color:#1e40af; }
+    .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; }
+    .stat-card { background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%); color:#fff; padding:20px; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+    .stat-card h3 { font-size:32px; margin:0 0 8px; }
+    .stat-card p { margin:0; opacity:0.9; }
+    .movie-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:18px; }
+    .movie-card { background:#fff; border-radius:12px; padding:16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  </style>
+  {% block head %}{% endblock %}
+  </head>
+<body>
+  <script>
+    // Expose CSRF token for AJAX requests
+    window.__csrf = '{{ session.get("csrf_token") }}';
+  </script>
+  <!-- Toast container -->
+  <div id="toast-container" style="position: fixed; top: 16px; right: 16px; display: grid; gap: 8px; z-index: 9999;"></div>
+  <header>
+    <nav>
+      {% block nav %}
+      <a href="/">Home</a>
+      <a href="/admin/login">Admin Login</a>
+      <a href="/customer/login">Customer Login</a>
+      {% endblock %}
+    </nav>
+  </header>
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+          {% for category, message in messages %}
+            <li><strong>{{ category|capitalize }}:</strong> {{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <script>
+    // Simple toast notifications
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.textContent = message;
+      toast.style.padding = '10px 14px';
+      toast.style.borderRadius = '8px';
+      toast.style.color = '#fff';
+      toast.style.boxShadow = '0 2px 12px rgba(0,0,0,0.18)';
+      toast.style.background = type === 'success' ? 'var(--success)' : (type === 'danger' ? 'var(--danger)' : 'var(--primary)');
+      container.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; }, 2500);
+      setTimeout(() => { toast.remove(); }, 3000);
+    }
+
+    // AJAX form submission for forms marked with data-ajax
+    function initAjaxForms() {
+      document.querySelectorAll('form[data-ajax="true"]').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = form.querySelector('button[type="submit"]');
+          const originalText = submitBtn ? submitBtn.textContent : '';
+          if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving...'; }
+          try {
+            const formData = new FormData(form);
+            const body = new URLSearchParams(formData);
+            const res = await fetch(form.action || window.location.href, {
+              method: (form.method || 'POST').toUpperCase(),
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': window.__csrf || '' },
+              body
+            });
+            if (res.redirected) {
+              window.location.href = res.url;
+              return;
+            }
+            let json = null;
+            const ct = res.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+              json = await res.json();
+            }
+            if (json && json.redirect) {
+              window.location.href = json.redirect;
+            } else if (json && json.message) {
+              showToast(json.message, json.status || 'success');
+            } else {
+              showToast('Saved', 'success');
+            }
+          } catch (err) {
+            showToast('Save failed', 'danger');
+          } finally {
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalText; }
+          }
+        });
+      });
+    }
+
+    // Debounced autosave for Edit Movie page
+    function initEditMovieAutosave() {
+      const form = document.getElementById('edit-movie-form');
+      if (!form) return;
+      const movieId = form.dataset.movieId;
+      const indicator = document.getElementById('save-indicator');
+      let timer = null;
+      const debounce = (fn, wait) => {
+        return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), wait); };
+      };
+      const autosave = async () => {
+        const data = {
+          title: form.querySelector('[name="title"]').value,
+          genre: form.querySelector('[name="genre"]').value,
+          release_year: form.querySelector('[name="release_year"]').value,
+          availability_status: form.querySelector('[name="availability_status"]').value
+        };
+        indicator.textContent = 'Saving...';
+        try {
+          const res = await fetch(`/admin/movies/edit/${movieId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.__csrf || '' },
+            body: JSON.stringify(data)
+          });
+          const ct = res.headers.get('content-type') || '';
+          if (ct.includes('application/json')) {
+            const json = await res.json();
+            if (json && json.status === 'success') {
+              indicator.textContent = 'Saved';
+            } else {
+              indicator.textContent = 'Error';
+            }
+          } else {
+            indicator.textContent = 'Saved';
+          }
+        } catch (e) {
+          indicator.textContent = 'Error';
+        }
+      };
+      const handler = debounce(autosave, 500);
+      form.querySelectorAll('input, select, textarea').forEach(el => {
+        el.addEventListener('input', handler);
+        el.addEventListener('change', handler);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initAjaxForms();
+      initEditMovieAutosave();
+    });
+  </script>
+</body>
+</html>

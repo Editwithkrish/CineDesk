@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}My Rentals{% endblock %}
+{% block content %}
+<h1>My Rentals</h1>
+<table>
+  <thead><tr><th>Movie</th><th>Rented</th><th>Returned</th><th>Status</th></tr></thead>
+  <tbody>
+    {% for r in rentals %}
+    <tr>
+      <td>{{ r.movie.title }}</td>
+      <td>{{ r.rental_date }}</td>
+      <td>{{ r.return_date or '-' }}</td>
+      <td>{{ r.rental_status }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+ </table>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 36px 0;">
+    <h2 style="font-size: 36px; margin-bottom: 14px;">Welcome to Movie Rental System</h2>
+    <p style="font-size: 18px; color: #666; margin-bottom: 28px;">Manage your movie rentals with ease</p>
+    <div style="margin-bottom: 28px;">
+      <button id="get-started-btn" class="btn" style="padding:12px 18px; font-size:16px;">Get Started</button>
+    </div>
+    
+    <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+        <div class="card" style="flex: 1; min-width: 280px; max-width: 360px;">
+            <h3 style="color: var(--primary); margin-bottom: 12px;">👤 Customer Portal</h3>
+            <p style="margin-bottom: 16px;">Browse and rent movies</p>
+            <a href="{{ url_for('customer_login') }}" class="btn">Customer Login</a>
+            <a href="{{ url_for('customer_register') }}" class="btn btn-success" style="margin-left: 8px;">Register</a>
+        </div>
+        
+        <div class="card" style="flex: 1; min-width: 280px; max-width: 360px;">
+            <h3 style="color: #764ba2; margin-bottom: 12px;">🔐 Admin Portal</h3>
+            <p style="margin-bottom: 16px;">Manage movies and rentals</p>
+            <a href="{{ url_for('admin_login') }}" class="btn">Admin Login</a>
+        </div>
+    </div>
+</div>
+<script>
+  // Smooth CTA redirection
+  const btn = document.getElementById('get-started-btn');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      btn.disabled = true;
+      btn.textContent = 'Redirecting…';
+      btn.style.opacity = '0.85';
+      setTimeout(() => { window.location.href = '{{ url_for('customer_login') }}'; }, 500);
+    });
+  }
+</script>
+{% endblock %}

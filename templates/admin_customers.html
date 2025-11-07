@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Manage Customers{% endblock %}
+{% block nav %}
+<a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+<a href="{{ url_for('admin_movies') }}">Movies</a>
+<a href="{{ url_for('admin_customers') }}">Customers</a>
+<a href="{{ url_for('admin_rentals') }}">Rentals</a>
+<a href="{{ url_for('admin_logout') }}">Logout</a>
+{% endblock %}
+{% block content %}
+<h2 style="color: #333; margin-bottom: 30px;">👥 Customer Management</h2>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Address</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for customer in customers %}
+    <tr>
+      <td>{{ customer.customer_id }}</td>
+      <td>{{ customer.name }}</td>
+      <td>{{ customer.email }}</td>
+      <td>{{ customer.phone }}</td>
+      <td>{{ customer.address }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
