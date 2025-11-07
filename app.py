@@ -50,14 +50,20 @@ log_level = os.environ.get('LOG_LEVEL', 'INFO').upper()
 logger = logging.getLogger('movie_rental')
 logger.setLevel(getattr(logging, log_level, logging.INFO))
 if not logger.handlers:
-    fh = RotatingFileHandler('app.log', maxBytes=1_000_000, backupCount=3)
-    fh.setLevel(getattr(logging, log_level, logging.INFO))
+    # Use ephemeral /tmp for serverless (e.g., Vercel) to avoid write errors
+    log_path = '/tmp/app.log' if os.environ.get('VERCEL') == '1' else 'app.log'
     fmt = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
-    fh.setFormatter(fmt)
+    try:
+        fh = RotatingFileHandler(log_path, maxBytes=1_000_000, backupCount=3)
+        fh.setLevel(getattr(logging, log_level, logging.INFO))
+        fh.setFormatter(fmt)
+        logger.addHandler(fh)
+    except Exception:
+        # Fallback to console-only logging if file handler fails
+        pass
     ch = logging.StreamHandler()
     ch.setLevel(getattr(logging, log_level, logging.INFO))
     ch.setFormatter(fmt)
-    logger.addHandler(fh)
     logger.addHandler(ch)
 
 # Basic input sanitization helpers
