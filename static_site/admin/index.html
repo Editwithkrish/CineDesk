@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CineDesk Admin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1.5.10/css/pico.min.css">
+  <style>
+    main { max-width: 900px; margin: 2rem auto; }
+    .muted { color: #6b7280; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 16px; }
+    .card { padding: 16px; border: 1px solid #eee; border-radius: 12px; }
+  </style>
+  <script>
+    function getUser() {
+      try { return JSON.parse(localStorage.getItem('user')) || null; } catch { return null; }
+    }
+    function logout() {
+      localStorage.removeItem('user');
+      window.location.href = '/';
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = getUser();
+      const gate = document.getElementById('gate');
+      const admin = document.getElementById('admin');
+      const who = document.getElementById('who');
+      if (!user || user.role !== 'admin') {
+        gate.style.display = 'block';
+        admin.style.display = 'none';
+      } else {
+        who.textContent = user.email || 'Admin';
+        gate.style.display = 'none';
+        admin.style.display = 'block';
+      }
+    });
+  </script>
+  </head>
+<body>
+  <nav class="container-fluid">
+    <ul>
+      <li><strong>CineDesk Admin</strong></li>
+    </ul>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/login/">Login</a></li>
+      <li><a href="/register/">Register</a></li>
+      <li><button class="secondary" onclick="logout()">Logout</button></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <section id="gate" style="display:none">
+      <h2>Admin access required</h2>
+      <p class="muted">Your account is not an admin. Please login with an admin email.</p>
+      <p>
+        <a href="/login/" role="button">Go to Login</a>
+      </p>
+    </section>
+
+    <section id="admin" style="display:none">
+      <h2>Welcome, <span id="who"></span></h2>
+      <p class="muted">Demo admin area. Backend actions require the Flask server.</p>
+
+      <div class="grid">
+        <div class="card"><strong>Total Movies</strong><div>— demo —</div></div>
+        <div class="card"><strong>Total Customers</strong><div>— demo —</div></div>
+        <div class="card"><strong>Active Rentals</strong><div>— demo —</div></div>
+        <div class="card"><strong>Available Movies</strong><div>— demo —</div></div>
+      </div>
+
+      <article style="margin-top: 16px;">
+        <header><h3>Manage</h3></header>
+        <ul>
+          <li><a href="#" aria-disabled="true">Movies (requires backend)</a></li>
+          <li><a href="#" aria-disabled="true">Customers (requires backend)</a></li>
+          <li><a href="#" aria-disabled="true">Rentals (requires backend)</a></li>
+        </ul>
+      </article>
+    </section>
+  </main>
+  </body>
+  </html>

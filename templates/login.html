@@ -61,15 +61,15 @@
         });
         if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
-        // Persist simple session locally for demo purposes
-        try {
-          localStorage.setItem('user', JSON.stringify({
-            email: document.getElementById('email').value,
-            token: data.token
-          }));
-        } catch {}
+        const user = {
+          email: document.getElementById('email').value,
+          token: data.token,
+          role: (data.user && data.user.role) ? data.user.role : (/admin|root|super|manager/i.test(document.getElementById('email').value) ? 'admin' : 'customer')
+        };
+        try { localStorage.setItem('user', JSON.stringify(user)); } catch {}
         statusEl.textContent = 'Success! Redirecting…';
-        setTimeout(() => { window.location.href = '/dashboard/'; }, 800);
+        const target = user.role === 'admin' ? '/admin/' : '/dashboard/';
+        setTimeout(() => { window.location.href = target; }, 800);
       } catch (e) {
         statusEl.textContent = 'Login failed: ' + e.message;
       }
