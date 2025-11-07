@@ -31,7 +31,7 @@
   <main class="container">
     <h1>Create your account</h1>
     <p class="sub">Join CineRent and start renting instantly</p>
-    <form onsubmit="event.preventDefault(); alert('This is a static demo page on Netlify.');">
+    <form id="register-form" onsubmit="event.preventDefault();">
       <div class="grid">
         <div class="form-group">
           <label for="name">Full Name</label>
@@ -62,7 +62,36 @@
       </div>
       <button class="btn" type="submit">Create Account</button>
       <p class="alt">Already have an account? <a href="/login/">Sign in</a></p>
+      <p id="register-status" class="alt" style="display:none;"></p>
     </form>
   </main>
+  <script>
+    const form = document.getElementById('register-form');
+    const statusEl = document.getElementById('register-status');
+    form.addEventListener('submit', async () => {
+      statusEl.style.display = 'block';
+      statusEl.textContent = 'Creating your account…';
+      try {
+        const payload = {
+          name: document.getElementById('name').value,
+          phone: document.getElementById('phone').value,
+          email: document.getElementById('email').value,
+          address: document.getElementById('address').value,
+          password: document.getElementById('password').value,
+        };
+        const res = await fetch('/.netlify/functions/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        statusEl.textContent = 'Registered! You can now sign in.';
+        setTimeout(() => { window.location.href = '/login/'; }, 900);
+      } catch (e) {
+        statusEl.textContent = 'Registration failed: ' + e.message;
+      }
+    });
+  </script>
 </body>
 </html>
